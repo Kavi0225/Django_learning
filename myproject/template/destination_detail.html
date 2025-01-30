@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ destination.name }} Details</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .destination-img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .destination-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .places-title {
+            margin-top: 40px;
+            font-size: 1.5rem;
+            color: #34495e;
+        }
+
+        .place {
+            display: flex;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .place img {
+            width: 200px;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .place-info {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .place-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .place-desc {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #777;
+        }
+
+        .comment-section {
+            margin-top: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .comment {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment p {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .like-btn, .dislike-btn {
+            background: #f4f4f9;
+            border: 1px solid #4CAF50;
+            color: #4CAF50;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .like-btn:hover, .dislike-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .likes-count, .dislikes-count {
+            margin-left: 10px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .auth-link {
+            color: #3498db;
+        }
+
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-comment {
+            text-align: center;
+            color: #aaa;
+        }
+
+        .reply {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>{{ destination.name }}</h1>
+    </header>
+
+    <div class="container">
+        <img src="{{ destination.img.url }}" alt="{{ destination.name }}" class="destination-img">
+        <p class="destination-desc">{{ destination.desc|safe }}</p>
+
+        <h3 class="places-title">Places we will visit:</h3>
+        {% for detail in details %}
+            <div class="place">
+                <img src="{{ detail.place_image.url }}" alt="{{ detail.place_name }}">
+                <div class="place-info">
+                    <p class="place-name">{{ detail.place_name }}</p>
+                    <p class="place-desc">{{ detail.place_description|safe }}</p>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="comment-section">
+            <h3>Comments ({{ comments.count }})</h3>
+
+            {% for comment in comments %}
+                <div class="comment" id="comment-{{ comment.id }}">
+                    <p><strong>{{ comment.user.username }}</strong>: {{ comment.text|safe }}</p>
+                    <small>{{ comment.created_at }}</small>
+                    
+                    <!-- Like/Dislike Buttons -->
+                    <button class="like-btn">Like ({{ comment.like_count }})</button>
+                    <button class="dislike-btn">Dislike ({{ comment.dislike_count }})</button>
+
+                    <div class="likes-count">Likes: {{ comment.like_count }}</div>
+                    <div class="dislikes-count">Dislikes: {{ comment.dislike_count }}</div>
+
+                    <!-- Show replies under each comment -->
+                    <div class="replies">
+                        {% for reply in comment.replies.all %}
+                            <div class="reply" id="reply-{{ reply.id }}">
+                                <p><strong>{{ reply.user.username }}</strong> (Reply): {{ reply.text|safe }} </p>
+                                <small>{{ reply.created_at }}</small>
+
+                                <!-- Like/Dislike Buttons for replies -->
+                                <button class="like-btn">Like ({{ reply.like_count }})</button>
+                                <button class="dislike-btn">Dislike ({{ reply.dislike_count }})</button>
+
+                                <div class="likes-count">Likes: {{ reply.like_count }}</div>
+                                <div class="dislikes-count">Dislikes: {{ reply.dislike_count }}</div>
+                            </div>
+                        {% empty %}
+                            <p>No replies yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="empty-comment">No comments yet.</p>
+            {% endfor %}
+
+            <!-- New Comment Form -->
+            {% if user.is_authenticated %}
+                <form method="post">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                    <button type="submit">Add Comment</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}" class="auth-link">Log in</a> to comment.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

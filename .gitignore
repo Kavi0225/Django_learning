@@ -1,3 +1,53 @@
-# Default ignored files
-/.idea
-/.myenv
+# Python bytecode
+*.py[cod]
+__pycache__/
+*.so
+
+# Django stuff:
+*.log
+db.sqlite3
+*.pot
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+myenv/
+*/.env
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# PostgreSQL
+*.pgsql
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# PyCharm
+*.iml
+*.ipr
+*.iws
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Static files
+/static/
+!.gitkeep
+
+# Media files
+/media/
+!.gitkeep
+
+# Local environment settings
+*.local
+.env
+.env.*

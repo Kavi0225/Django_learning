@@ -34,7 +34,6 @@
 							<ul class="d-flex flex-row align-items-start justify-content-start">
 								<li class="active"><a href="{% static 'index.html' %}">Home</a></li>
 								
-								<li><a href="{% static 'contact.html' %}">Contact</a></li>
 								{% if user.is_authenticated %}
 								<li>Hello, {{user.first_name}}</li>
 									<li><a href="accounts/logout">Logout</a></li>
@@ -245,42 +244,46 @@
 <!-- Destinations -->
 
 <div class="destinations" id="destinations">
-	<div class="container">
-		<div class="row">
-			<div class="col text-center">
-				<div class="section_subtitle">simply amazing places</div>
-				<div class="section_title"><h2>Popular Destinations</h2></div>
-			</div>
-		</div>
-		<div class="row destinations_row">
-			<div class="col">
-				<div class="destinations_container item_grid">
+    <div class="container">
+		
+        <div class="row">
+            <div class="col text-center">
+                <div class="section_subtitle">simply amazing places</div>
+                <div class="section_title"><h2>Popular Destinations</h2></div>
+            </div>
+        </div>
+        <div class="row destinations_row">
+            <div class="col">
+                <div class="destinations_container item_grid">
 
-					<!-- Destination -->
-					{% for d in dest %}
-					<div class="destination item">
-						<div class="destination_image">
-							<img src="{{d.img.url}}" alt="">
-							{% if d.offer %}
-							<div class="spec_offer text-center"><a href="#">Special Offer</a></div>
-							{% endif %}
-						</div>
-						<div class="destination_content">
-							<div class="destination_title"><a href="destinations.html">{{d.name}}</a></div>
-							<div class="destination_subtitle"><p>{{d.desc}}</p></div>
-							<div class="destination_price">From {{d.price}}</div>
-						</div>
-					</div>
-					{% endfor %}
-
-					
-
-					
-				</div>
-			</div>
-		</div>
-	</div>
+                    <!-- Destination -->
+                    {% for d in dest %}
+                    <div class="destination item">
+                        <div class="destination_image">
+                            <img src="{{d.img.url}}" alt="">
+                            {% if d.offer %}
+                            <div class="spec_offer text-center"><a href="#">Special Offer</a></div>
+                            {% endif %}
+                        </div>
+                        <div class="destination_content">
+                            <!-- Modify the link to point to the destination detail page -->
+                            <div class="destination_title">
+                                <a href="{% url 'destination_detail' d.id %}">{{d.name}}</a>
+                            </div>
+                            <div class="destination_subtitle">
+                                <p>{{d.desc}}</p>
+                            </div>
+                            <div class="destination_price">From {{d.price}}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
 <!-- Testimonials -->
 
 <div class="testimonials" id="testimonials">

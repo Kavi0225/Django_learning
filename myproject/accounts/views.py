@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.urls import reverse
+import re
 
 def logout(request):
-    auth.logout(request)--
+    auth.logout(request)
     return redirect('/')
 
 def login(request):
@@ -39,6 +40,9 @@ def register(request):
             elif User.objects.filter(email=email).exists():
                 messages.info(request, 'Email already taken')
                 return render(request, 'register.html')
+            elif not re.match(r"^[a-zA-Z0-9_.+-]+@(gmail\.com|yahoo\.com|mnk\.com)$", email):
+                messages.info(request, "Please use a valid email address with @gmail.com, @yahoo.com, or @mnk.com")
+                return redirect('register')
             else:
                 user = User.objects.create_user(
                     username=username,
