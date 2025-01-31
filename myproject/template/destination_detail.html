@@ -12,39 +12,22 @@
             padding: 0;
             color: #333;
         }
-
-        header {
-            background-color: #2c3e50;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-        }
-
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 900px;
+            margin: 20px auto;
             padding: 20px;
-        }
-
-        .destination-img {
-            max-width: 100%;
+            background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-
-        .destination-desc {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #555;
-            margin-top: 20px;
+        .comment-section {
+            margin-top: 40px;
         }
-
         .places-title {
             margin-top: 40px;
             font-size: 1.5rem;
             color: #34495e;
         }
-
         .place {
             display: flex;
             margin-top: 30px;
@@ -80,143 +63,106 @@
             color: #777;
         }
 
-        .comment-section {
-            margin-top: 40px;
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .comment {
-            margin-bottom: 20px;
+        .comment, .reply {
+            background: #fafafa;
             padding: 15px;
-            background-color: #fafafa;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
-        .comment p {
-            font-size: 1rem;
-            color: #333;
+        .reply {
+            margin-left: 30px;
         }
-
         .like-btn, .dislike-btn {
-            background: #f4f4f9;
-            border: 1px solid #4CAF50;
-            color: #4CAF50;
-            padding: 8px 16px;
             cursor: pointer;
-            margin-top: 10px;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .like-btn:hover, .dislike-btn:hover {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .likes-count, .dislikes-count {
-            margin-left: 10px;
-            color: #777;
+            border: none;
+            background: none;
+            color: #007bff;
             font-size: 0.9rem;
         }
-
-        .auth-link {
-            color: #3498db;
-        }
-
-        .auth-link:hover {
+        .like-btn:hover, .dislike-btn:hover {
             text-decoration: underline;
         }
-
-        .empty-comment {
-            text-align: center;
-            color: #aaa;
-        }
-
-        .reply {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
     </style>
+    <script>
+        function handleLikeDislike(commentId, action) {
+            fetch(`/comment/${action}/${commentId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                document.getElementById(`likes-${commentId}`).innerText = data.likes;
+                document.getElementById(`dislikes-${commentId}`).innerText = data.dislikes;
+            });
+        }
+    </script>
 </head>
 <body>
-
-    <header>
-        <h1>{{ destination.name }}</h1>
-    </header>
-
     <div class="container">
-        <img src="{{ destination.img.url }}" alt="{{ destination.name }}" class="destination-img">
-        <p class="destination-desc">{{ destination.desc|safe }}</p>
-
-        <h3 class="places-title">Places we will visit:</h3>
-        {% for detail in details %}
-            <div class="place">
-                <img src="{{ detail.place_image.url }}" alt="{{ detail.place_name }}">
-                <div class="place-info">
-                    <p class="place-name">{{ detail.place_name }}</p>
-                    <p class="place-desc">{{ detail.place_description|safe }}</p>
+        <h1>{{ destination.name }}</h1>
+        <img src="{{ destination.img.url }}" alt="{{ destination.name }}" style="width:50%; border-radius:8px;">
+        <p>{{ destination.desc|safe }}</p>
+        
+            <h3 class="places-title">Places we will visit:</h3>
+            {% for detail in details %}
+                <div class="place">
+                    <img src="{{ detail.place_image.url }}" alt="{{ detail.place_name }}">
+                    <div class="place-info">
+                        <p class="place-name">{{ detail.place_name }}</p>
+                        <p class="place-desc">{{ detail.place_description|safe }}</p>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
-
+            {% endfor %}
         <div class="comment-section">
             <h3>Comments ({{ comments.count }})</h3>
 
             {% for comment in comments %}
                 <div class="comment" id="comment-{{ comment.id }}">
                     <p><strong>{{ comment.user.username }}</strong>: {{ comment.text|safe }}</p>
-                    <small>{{ comment.created_at }}</small>
+                    <button class="like-btn" onclick="handleLikeDislike({{ comment.id }}, 'like')">Like (<span id="likes-{{ comment.id }}">{{ comment.likes }}</span>)</button>
+                    <button class="dislike-btn" onclick="handleLikeDislike({{ comment.id }}, 'dislike')">Dislike (<span id="dislikes-{{ comment.id }}">{{ comment.dislikes }}</span>)</button>
                     
-                    <!-- Like/Dislike Buttons -->
-                    <button class="like-btn">Like ({{ comment.like_count }})</button>
-                    <button class="dislike-btn">Dislike ({{ comment.dislike_count }})</button>
-
-                    <div class="likes-count">Likes: {{ comment.like_count }}</div>
-                    <div class="dislikes-count">Dislikes: {{ comment.dislike_count }}</div>
-
-                    <!-- Show replies under each comment -->
+                    <!-- Replies -->
                     <div class="replies">
                         {% for reply in comment.replies.all %}
-                            <div class="reply" id="reply-{{ reply.id }}">
-                                <p><strong>{{ reply.user.username }}</strong> (Reply): {{ reply.text|safe }} </p>
-                                <small>{{ reply.created_at }}</small>
-
-                                <!-- Like/Dislike Buttons for replies -->
-                                <button class="like-btn">Like ({{ reply.like_count }})</button>
-                                <button class="dislike-btn">Dislike ({{ reply.dislike_count }})</button>
-
-                                <div class="likes-count">Likes: {{ reply.like_count }}</div>
-                                <div class="dislikes-count">Dislikes: {{ reply.dislike_count }}</div>
+                            <div class="reply">
+                                <p><strong>{{ reply.user.username }}</strong>: {{ reply.text|safe }}</p>
+                                <button class="like-btn" onclick="handleLikeDislike({{ reply.id }}, 'like')">Like (<span id="likes-{{ reply.id }}">{{ reply.likes }}</span>)</button>
+                                <button class="dislike-btn" onclick="handleLikeDislike({{ reply.id }}, 'dislike')">Dislike (<span id="dislikes-{{ reply.id }}">{{ reply.dislikes }}</span>)</button>
                             </div>
                         {% empty %}
                             <p>No replies yet.</p>
                         {% endfor %}
                     </div>
+                    
+                    <!-- Reply Form -->
+                    {% if user.is_authenticated %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                            <textarea name="text" placeholder="Reply..." required></textarea>
+                            <button type="submit">Reply</button>
+                        </form>
+                    {% endif %}
                 </div>
             {% empty %}
-                <p class="empty-comment">No comments yet.</p>
+                <p>No comments yet.</p>
             {% endfor %}
 
-            <!-- New Comment Form -->
+            <!-- Add New Comment -->
             {% if user.is_authenticated %}
                 <form method="post">
                     {% csrf_token %}
-                    {{ comment_form.as_p }}
+                    {{ form.as_p }}
                     <button type="submit">Add Comment</button>
                 </form>
             {% else %}
-                <p><a href="{% url 'login' %}" class="auth-link">Log in</a> to comment.</p>
+                <p><a href="{% url 'login' %}">Log in</a> to comment.</p>
             {% endif %}
         </div>
     </div>
-
 </body>
 </html>
