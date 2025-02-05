@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.urls import reverse
-import re
 
 def logout(request):
     auth.logout(request)
@@ -31,6 +30,8 @@ def register(request):
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
         email = request.POST.get('email', '')
+        allowed_domains = ["gmail.com", "yahoo.com", "mnk.com"]
+        email_domain = email.split("@")[-1]
 
         if password1 == password2:
             if User.objects.filter(username=username).exists():
@@ -40,7 +41,7 @@ def register(request):
             elif User.objects.filter(email=email).exists():
                 messages.info(request, 'Email already taken')
                 return render(request, 'register.html')
-            elif not re.match(r"^[a-zA-Z0-9_.+-]+@(gmail\.com|yahoo\.com|mnk\.com)$", email):
+            elif email_domain not in allowed_domains:
                 messages.info(request, "Please use a valid email address with @gmail.com, @yahoo.com, or @mnk.com")
                 return redirect('register')
             else:
@@ -53,7 +54,7 @@ def register(request):
                 )
                 user.save()
                 messages.info(request, 'User created successfully')
-                return redirect(reverse('login'))  
+                return redirect('login')  
         else:
             messages.info(request, 'Passwords do not match')
             return render(request, 'register.html')
